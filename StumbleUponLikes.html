@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+  <script crossorigin="anonymous"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script crossorigin="anonymous"
+        integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+        src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tabulator/3.5.2/css/tabulator_site.min.css"
+        rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tabulator/3.5.2/js/tabulator.min.js"
+        type="text/javascript"></script>
+  <title></title>
+</head>
+<body>
+  <div>
+    <h2>Tillman's StumbleUpon Lists</h2>
+    <div>
+      <div id="tdjrlists-table"></div>
+    </div>
+  </div>
+  <script>
+
+  function headerFilterForDomain(headerValue, rowValue, rowData, filterParams){
+    //headerValue - the value of the header filter element
+    //rowValue - the value of the column in this row
+    //rowData - the data for the row being filtered
+    //filterParams - params object passed to the headerFilterFuncParams property
+    var url = rowValue;
+    var urlParts = url.replace('http://','').replace('https://','').split(/[/?#]/);
+    var domain = urlParts[0];
+    return domain.includes(headerValue);
+  }
+
+  function loadTable() {
+    // create the table
+    $("#tdjrlists-table").tabulator({
+      height: 800,
+      placeholder: "Fetching data...",
+      layout: "fitColumns",
+      groupBy: "listType",
+      columns:[
+        {title:"List Source", field:"listType", visible: false},
+        {title:"List Name", field:"listName", width: 150, sortable:true, headerFilter:true, headerFilterPlaceholder:"Filter by list..."},
+        {title:"Title", field:"itemTitle", sortable:true, headerFilter:true, headerFilterPlaceholder:"Filter by title..."},
+        {title:"Url", field:"itemUrl", formatter: "link", sortable:true, headerFilter: "input", headerFilterPlaceholder:"Filter by domain...", headerFilterFunc:headerFilterForDomain},
+      ],
+    });
+    
+    // fill table with data
+    $("#tdjrlists-table").tabulator("setData", 'http://localhost:3000/all');
+
+    // start sorted by List then Item Title
+    $("#tdjrlists-table").tabulator("setSort", [
+          {column: "itemTitle", dir: "asc"},
+          {column: "listName", dir: "asc"},
+        ]
+    );
+  }
+  function init() {
+    loadTable()
+    }
+
+    init()
+
+  </script>
+</body>
+</html>
